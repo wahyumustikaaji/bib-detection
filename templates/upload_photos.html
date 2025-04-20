@@ -1,0 +1,496 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="upload-container">
+    <div class="upload-card">
+        <div class="upload-header">
+            <h2>Upload Photos</h2>
+            <div class="event-badge">{{ event.name }}</div>
+            <p class="event-date">Event Date: {{ event.date.strftime('%d %B, %Y') }}</p>
+        </div>
+        
+        <div class="upload-body">
+            <form method="post" enctype="multipart/form-data" id="uploadForm">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <div class="upload-text">
+                        <p>Drag & Drop your photos here</p>
+                        <p class="upload-subtext">or</p>
+                        <label for="photos" class="upload-btn">Browse Files</label>
+                        <input type="file" id="photos" name="photos" multiple accept=".jpg,.jpeg,.png" required hidden>
+                    </div>
+                    <p class="file-info">You can select multiple photos (JPG, JPEG, PNG)</p>
+                </div>
+                
+                <div class="selected-files" id="selectedFiles">
+                    <h3>Selected Photos: <span id="fileCount">0</span></h3>
+                    <div class="file-list" id="fileList"></div>
+                </div>
+                
+                <div class="processing-info" id="processingInfo" style="display: none;">
+                    <h3>Processing Status</h3>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="progressBar"></div>
+                    </div>
+                    <p id="statusText">Preparing to upload...</p>
+                    <div class="process-steps">
+                        <div class="step" id="step1">
+                            <div class="step-icon"><i class="fas fa-upload"></i></div>
+                            <div class="step-text">Uploading</div>
+                        </div>
+                        <div class="step" id="step2">
+                            <div class="step-icon"><i class="fas fa-search"></i></div>
+                            <div class="step-text">Detecting Bibs</div>
+                        </div>
+                        <div class="step" id="step3">
+                            <div class="step-icon"><i class="fas fa-font"></i></div>
+                            <div class="step-text">OCR Processing</div>
+                        </div>
+                        <div class="step" id="step4">
+                            <div class="step-icon"><i class="fas fa-save"></i></div>
+                            <div class="step-text">Saving Results</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="submit-btn" id="uploadButton">
+                        <i class="fas fa-upload"></i> Upload and Process
+                    </button>
+                    <a href="{{ url_for('admin_dashboard') }}" class="cancel-btn">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<style>
+    .upload-container {
+        padding: 2rem;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .upload-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .upload-header {
+        background: linear-gradient(135deg, #4a90e2, #5e72e4);
+        padding: 2rem;
+        color: white;
+        position: relative;
+    }
+    
+    .upload-header h2 {
+        margin: 0 0 1rem 0;
+        font-size: 1.8rem;
+    }
+    
+    .event-badge {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.5rem 1rem;
+        border-radius: 30px;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+    
+    .event-date {
+        margin: 0;
+        opacity: 0.8;
+    }
+    
+    .upload-body {
+        padding: 2rem;
+    }
+    
+    .upload-area {
+        border: 2px dashed #ddd;
+        border-radius: 10px;
+        padding: 2rem;
+        text-align: center;
+        margin-bottom: 2rem;
+        transition: border-color 0.3s ease, background 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .upload-area:hover, .upload-area.dragover {
+        border-color: #4a90e2;
+        background: #f8f9ff;
+    }
+    
+    .upload-icon {
+        font-size: 3rem;
+        color: #4a90e2;
+        margin-bottom: 1rem;
+    }
+    
+    .upload-text p {
+        margin: 0.5rem 0;
+        color: #555;
+    }
+    
+    .upload-subtext {
+        font-size: 0.9rem;
+        color: #888;
+    }
+    
+    .upload-btn {
+        display: inline-block;
+        background: #4a90e2;
+        color: white;
+        padding: 0.6rem 1.5rem;
+        border-radius: 5px;
+        margin: 1rem 0;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+    
+    .upload-btn:hover {
+        background: #3a7bc8;
+    }
+    
+    .file-info {
+        font-size: 0.85rem;
+        color: #888;
+        margin-top: 1rem;
+    }
+    
+    .selected-files {
+        margin-bottom: 2rem;
+        display: none;
+    }
+    
+    .selected-files h3 {
+        font-size: 1.2rem;
+        color: #444;
+        margin-bottom: 1rem;
+    }
+    
+    .file-list {
+        max-height: 200px;
+        overflow-y: auto;
+        border: 1px solid #eee;
+        border-radius: 8px;
+    }
+    
+    .file-item {
+        display: flex;
+        align-items: center;
+        padding: 0.8rem;
+        border-bottom: 1px solid #eee;
+    }
+    
+    .file-item:last-child {
+        border-bottom: none;
+    }
+    
+    .file-icon {
+        color: #4a90e2;
+        margin-right: 0.8rem;
+    }
+    
+    .file-name {
+        flex: 1;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    
+    .file-size {
+        color: #888;
+        font-size: 0.85rem;
+        margin-left: 1rem;
+    }
+    
+    .file-remove {
+        color: #ff5252;
+        cursor: pointer;
+        margin-left: 0.8rem;
+    }
+    
+    .processing-info {
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: 10px;
+    }
+    
+    .processing-info h3 {
+        font-size: 1.2rem;
+        color: #444;
+        margin-top: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .progress-container {
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+        overflow: hidden;
+    }
+    
+    .progress-bar {
+        height: 100%;
+        background: linear-gradient(to right, #4a90e2, #5e72e4);
+        width: 0;
+        transition: width 0.3s ease;
+    }
+    
+    #statusText {
+        text-align: center;
+        color: #555;
+        margin-bottom: 1.5rem;
+    }
+    
+    .process-steps {
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .step {
+        text-align: center;
+        flex: 1;
+        opacity: 0.5;
+        transition: opacity 0.3s ease;
+    }
+    
+    .step.active {
+        opacity: 1;
+    }
+    
+    .step-icon {
+        background: #e9ecef;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 0.5rem;
+        color: #555;
+        transition: background 0.3s ease, color 0.3s ease;
+    }
+    
+    .step.active .step-icon {
+        background: #4a90e2;
+        color: white;
+    }
+    
+    .step-text {
+        font-size: 0.85rem;
+        color: #555;
+    }
+    
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+    }
+    
+    .submit-btn {
+        flex: 1;
+        background: linear-gradient(to right, #4a90e2, #5e72e4);
+        color: white;
+        border: none;
+        padding: 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(94, 114, 228, 0.3);
+    }
+    
+    .cancel-btn {
+        padding: 1rem;
+        background: #f8f9fa;
+        color: #555;
+        border-radius: 8px;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: background 0.3s ease;
+    }
+    
+    .cancel-btn:hover {
+        background: #e9ecef;
+    }
+    
+    @media (max-width: 768px) {
+        .upload-container {
+            padding: 1rem;
+        }
+        
+        .process-steps {
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        
+        .step {
+            flex: 0 0 45%;
+        }
+        
+        .form-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const uploadForm = document.getElementById('uploadForm');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('photos');
+        const selectedFiles = document.getElementById('selectedFiles');
+        const fileList = document.getElementById('fileList');
+        const fileCount = document.getElementById('fileCount');
+        const processingInfo = document.getElementById('processingInfo');
+        const progressBar = document.getElementById('progressBar');
+        const statusText = document.getElementById('statusText');
+        const uploadButton = document.getElementById('uploadButton');
+        const steps = [
+            document.getElementById('step1'),
+            document.getElementById('step2'),
+            document.getElementById('step3'),
+            document.getElementById('step4')
+        ];
+        
+        // Handle file selection
+        fileInput.addEventListener('change', function() {
+            updateFileList();
+        });
+        
+        // Handle drag and drop
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        
+        uploadArea.addEventListener('dragleave', function() {
+            uploadArea.classList.remove('dragover');
+        });
+        
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            fileInput.files = e.dataTransfer.files;
+            updateFileList();
+        });
+        
+        uploadArea.addEventListener('click', function() {
+            fileInput.click();
+        });
+        
+        // Handle form submission
+        uploadForm.addEventListener('submit', function(e) {
+            if (fileInput.files.length === 0) {
+                alert('Please select at least one photo to upload.');
+                e.preventDefault();
+                return;
+            }
+            
+            // Show processing info
+            processingInfo.style.display = 'block';
+            uploadButton.disabled = true;
+            
+            // Simulate processing steps
+            simulateProcessing();
+        });
+        
+        // Update file list display
+        function updateFileList() {
+            const files = fileInput.files;
+            
+            if (files.length > 0) {
+                selectedFiles.style.display = 'block';
+                fileCount.textContent = files.length;
+                fileList.innerHTML = '';
+                
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const fileSize = formatFileSize(file.size);
+                    
+                    const fileItem = document.createElement('div');
+                    fileItem.className = 'file-item';
+                    fileItem.innerHTML = `
+                        <div class="file-icon"><i class="far fa-file-image"></i></div>
+                        <div class="file-name">${file.name}</div>
+                        <div class="file-size">${fileSize}</div>
+                    `;
+                    
+                    fileList.appendChild(fileItem);
+                }
+            } else {
+                selectedFiles.style.display = 'none';
+            }
+        }
+        
+        // Format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        // Simulate processing steps
+        function simulateProcessing() {
+            // Reset steps
+            steps.forEach(step => step.classList.remove('active'));
+            
+            // Step 1: Uploading
+            steps[0].classList.add('active');
+            statusText.textContent = 'Uploading photos...';
+            
+            let progress = 0;
+            const interval = setInterval(function() {
+                progress += 1;
+                progressBar.style.width = progress + '%';
+                
+                if (progress === 25) {
+                    // Step 2: Detecting Bibs
+                    steps[0].classList.remove('active');
+                    steps[1].classList.add('active');
+                    statusText.textContent = 'Detecting bib numbers in photos...';
+                } else if (progress === 50) {
+                    // Step 3: OCR Processing
+                    steps[1].classList.remove('active');
+                    steps[2].classList.add('active');
+                    statusText.textContent = 'Reading bib numbers with OCR...';
+                } else if (progress === 75) {
+                    // Step 4: Saving Results
+                    steps[2].classList.remove('active');
+                    steps[3].classList.add('active');
+                    statusText.textContent = 'Saving results to database...';
+                } else if (progress >= 100) {
+                    clearInterval(interval);
+                    // Form will submit naturally
+                }
+            }, 50); // Adjust timing as needed
+        }
+    });
+</script>
+{% endblock %}

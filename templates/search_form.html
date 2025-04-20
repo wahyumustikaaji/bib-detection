@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="background-black" style="padding: 40px 0px;">
+    <div class="form-contact">
+        <div class="heading-register">
+            <h2 class="title-register">Search Your Race Photos</h2>
+        </div>
+        <div class="form-register" style="margin-top: 30px;">
+            <form method="post" id="registerform" class="register-form">
+                <fieldset class="sex-container">
+                    <select id="event_id" name="event_id" required class="tb-my-input" aria-required="true">
+                    <option value="">-- Select Event --</option>
+                    {% for event in events %}
+                        <option value="{{ event.id }}">{{ event.name }}</option>
+                    {% endfor %}
+                    </select>
+                </fieldset>
+                <fieldset class="telephone-container">
+                    <input placeholder="Your bib number" class="tb-my-input" tabindex="1" size="32" type="text" id="bib_number" name="bib_number" required>
+                </fieldset>
+                <button class="form-submit submit-register" type="submit">Search</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

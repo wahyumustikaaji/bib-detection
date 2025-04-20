@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="" id="exampleModalToggle2" aria-hidden="false"
+    aria-label="exampleModalToggleLabel2" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="tfre_registration-form">
+                <h2>Register</h2>
+                <div class="error_message tfre_message"></div>
+                <form class="tfre_register" method="post" enctype="multipart/form-data"
+                    id="tfre_custom-register-form">
+                    <div class="container">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" name="username" id="usernames" placeholder="Username" required="">
+                        </div>
+                        <div class="form-group" style="margin-top: 10px;">
+                            <label for="email">Email</label>
+                            <input type="email" name="email" id="email-modal" placeholder="Email " required="">
+                        </div>
+                        <div class="form-group" style="margin-top: 10px;">
+                            <label for="password">Password</label>
+                            <input type="password" name="password" id="passwords" placeholder="Your passsword"
+                                required="">
+                        </div>
+                        <div class="form-group" style="margin-top: 10px;">
+                            <label for="confirm_password">Confirm Password</label>
+                            <input type="password" name="confirm_password" id="confirm_password"
+                                placeholder="Confirm password" required="">
+                        </div>
+                        <input type="hidden" name="action" value="tfre_register_ajax">
+                        <button type="submit" class="flat-button" style="margin-top: 20px;">Sign Up</button>
+                    </div>
+                </form>
+            </div>
+            <div class="container tfre_signin tfre_login_redirect" style="margin-top: 20px;" id="tfre_login_redirect">
+                <p>Already have an account? <a href="{{ url_for('login') }}">Sign in.</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

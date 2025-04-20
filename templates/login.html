@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="padding: 60px 0px;" class="" id="exampleModalToggle" aria-hidden="true" aria-label="exampleModalToggleLabel"
+    tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="tfre_login-form">
+                <h2>Login</h2>
+                <div class="error_message tfre_message"></div>
+                <form class="tfre_login" method="post" enctype="multipart/form-data" id="tfre_custom-login-form">
+                    <div class="container">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" name="username" id="username" placeholder="Your username"
+                                required="">
+                        </div>
+                        <div class="form-group" style="margin-top: 10px;">
+                            <label for="password">Password</label>
+                            <input type="password" name="password" id="password" placeholder="Your password"
+                                required="">
+                        </div>
+                        <input type="hidden" name="action" value="tfre_login_ajax">
+                        <button type="submit" class="flat-button" style="margin-top: 20px;">Login</button>
+                    </div>
+                </form>
+            </div>
+            <div class="container tfre_register" style="margin-top: 20px;" id="tfre_register_redirect">
+                <p>Don't you have an account? <a href="{{ url_for('register') }}">Register.</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

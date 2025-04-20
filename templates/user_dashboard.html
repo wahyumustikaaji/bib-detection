@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <h2>User Dashboard</h2>
+    <p>Welcome to the Bib Number Detection System!</p>
+    
+    <div>
+        <h3>Find Your Race Photos</h3>
+        <p>Search for your photos by selecting an event and entering your bib number.</p>
+        <a href="{{ url_for('search_photos') }}" class="btn">Search Photos</a>
+    </div>
+</div>
+{% endblock %}

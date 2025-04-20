@@ -1,0 +1,235 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!-- Page Title -->
+<div class="page-title page-title-blog">
+    <div class="themeflat-container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-title-heading">
+                    <h1 class="title">{{ event.name }}</h1>
+                </div><!-- /.page-title-captions -->
+                <div class="breadcrumbs">
+                    <ul>
+                        <li><a>{{ request.form['bib_number'] }}</a></li>
+                    </ul>
+                </div><!-- /.breadcrumbs -->
+
+            </div><!-- /.col-md-12 -->
+        </div><!-- /.row -->
+    </div><!-- /.container -->
+</div>
+<!-- /.page-title -->
+
+<!-- Related Products -->
+<section class="tf-spacing-1">
+    <div class="themeflat-container">
+        <div class="title-box title-small start-title-box">
+            <h3 class="wow fadeInUp">Search results:</h3>
+        </div>
+        {% if photos %}
+        <div class="row">
+            {% for photo in photos %}
+            <div class="col-6 col-md-6 col-lg-3 col-xl-3 col-xxl-3">
+                <div class="our-product-item wow fadeInUp mb-lg-30">
+                    <div class="featured-product">
+                        <div class="product-thumnail">
+                            <img class="image-thumnail" src="{{ url_for('static', filename='uploads/' + photo.filename) }}" alt="Image Product">
+                            <img class="image-hover" src="{{ url_for('static', filename='uploads/' + photo.filename) }}" alt="Image Product">
+                        </div>
+                        <a href="{{ url_for('static', filename='uploads/' + photo.filename) }}" download="{{ event.name }}_bib{{ photo.bib_number }}_{{ loop.index }}.jpg" 
+                        class="btn-add-cart">Download</a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+            <p class="no-results">No photos found with this bib number for the selected event.</p>
+        {% endif %}
+    </div>
+    <div class="download-all-container" style="margin-top: 100px;">
+        <a href="#" class="form-submit submit-register" id="downloadAllBtn">
+            <i class="fas fa-cloud-download-alt"></i> Download All Photos
+        </a>
+    </div>
+</section>
+<!-- /Related Products -->
+
+<style>
+    .search-results-container {
+        padding: 2rem;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 70vh;
+    }
+    
+    .search-results-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        max-width: 80rem;
+        margin: 0 auto;
+    }
+    
+    .search-results-card h2 {
+        color: #333;
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+    
+    .event-info {
+        background: #f8f9fa;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+        border-left: 4px solid #4a90e2;
+    }
+    
+    .photo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .photo-item {
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease;
+    }
+    
+    .photo-item:hover {
+        transform: translateY(-5px);
+    }
+    
+    .photo-wrapper {
+        height: 250px;
+        overflow: hidden;
+    }
+    
+    .photo-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+    
+    .photo-item:hover .photo-wrapper img {
+        transform: scale(1.05);
+    }
+    
+    .photo-info {
+        padding: 1rem;
+        background: #fff;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .photo-info p {
+        margin: 0;
+        font-weight: 600;
+    }
+    
+    .download-btn {
+        background: #4a90e2;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: background 0.3s ease;
+    }
+    
+    .download-btn:hover {
+        background: #3a7bc8;
+    }
+    
+    .download-all-container {
+        text-align: center;
+        margin: 2rem 0;
+    }
+    
+    .download-all-btn {
+        background: linear-gradient(to right, #4a90e2, #5e72e4);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-block;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    
+    .download-all-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(94, 114, 228, 0.3);
+    }
+    
+    .no-results {
+        text-align: center;
+        padding: 2rem;
+        color: #666;
+        font-size: 1.1rem;
+    }
+    
+    .search-again-btn {
+        display: block;
+        text-align: center;
+        background: #f8f9fa;
+        color: #333;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        margin-top: 1rem;
+        transition: background 0.3s ease;
+    }
+    
+    .search-again-btn:hover {
+        background: #e9ecef;
+    }
+    
+    @media (max-width: 768px) {
+        .photo-grid {
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        }
+    }
+</style>
+
+<!-- Font Awesome untuk ikon -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<!-- Script untuk download semua foto -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const downloadAllBtn = document.getElementById('downloadAllBtn');
+        
+        if (downloadAllBtn) {
+            downloadAllBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Dapatkan semua link download
+                const downloadLinks = document.querySelectorAll('.download-btn');
+                
+                // Fungsi untuk delay
+                const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+                
+                // Download satu per satu dengan delay
+                (async function() {
+                    for (let i = 0; i < downloadLinks.length; i++) {
+                        // Buat klik pada link download
+                        downloadLinks[i].click();
+                        
+                        // Tunggu 500ms sebelum download berikutnya
+                        await delay(500);
+                    }
+                })();
+            });
+        }
+    });
+</script>
+{% endblock %}
